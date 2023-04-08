@@ -1,35 +1,66 @@
-#YouTube Video Downloader
+# YouTube Video Downloader
 
-This is a simple YouTube video downloader built using Python and the Pytube library. It provides a graphical user interface that allows the user to select a YouTube video and choose the quality in which to download it. The application also allows the user to specify a destination folder where the video will be saved.
+A simple YouTube video downloader built with Python using the tkinter and pytube libraries.
 
-#Dependencies
-Python 3
-Pytube library
+## Features
 
-#Installation
-To install the Pytube library, run the following command in your terminal:
+- Download YouTube videos in various formats and quality options.
+- Download audio only from YouTube videos.
+- Display download progress and speed.
+- Supports user-friendly graphical interface.
 
+## Prerequisites
+
+Make sure you have Python 3.6 or higher installed on your system. You can download it from https://www.python.org/downloads/.
+
+## Installation
+
+1. Clone the repository or download the zip file and extract it to a directory of your choice.
+
+```bash
+git clone https://github.com/Scrollzito/youtube-video-downloader.git
 ```
-pip install pytube
+
+2. Open a terminal and navigate to the project directory.
+
+3. Install the required dependencies:
+
+```bash
+pip install -r requirements.txt
 ```
 
-#Usage
-To use the application, simply run the script and a GUI window will appear. Follow the steps below:
+## Usage
 
-1. Enter the URL of the YouTube video in the "YouTube video URL" field.
+1. Run the following command in your terminal to start the application:
 
-2. Click the "Select the quality" button to load the available quality options for the video.
+```bash
+python youtube_downloader.py
+```
 
-3. Select a quality option from the "Quality options" drop-down menu.
+2. The application window will open. Follow the steps below to download a video:
 
-4. Choose a destination folder by clicking the "Browse" button and selecting a folder.
+   a. Enter a valid YouTube video URL in the "YouTube video URL" field.
 
-5. Optionally, select the "Download audio only" checkbox to download only the audio of the video.
+   b. Choose whether you want to download audio only by checking or unchecking the "Download audio only" option.
 
-6. Click the "Download" button to start the download process.
+   c. Click the "Load options" button to display the available quality options for the video.
 
-#Contributing
-If you'd like to contribute to this project, feel free to submit a pull request.
+   d. Select a desired quality option from the "Quality options" dropdown menu.
 
-#License
-This project is licensed under the MIT License. See the LICENSE file for more information.
+   e. Choose the destination folder by clicking the "Browse" button and selecting a folder.
+
+   f. Click the "Download" button to start downloading the video. The progress and speed will be displayed.
+
+## Troubleshooting
+
+1. Make sure you have the latest version of Python installed on your system.
+
+2. If you encounter any issues with the dependencies, try reinstalling them using pip install -r requirements.txt.
+
+3. Ensure that you have a stable internet connection while downloading videos.
+
+4. If the application doesn't work as expected, try restarting it or check for any error messages in the terminal.
+
+## License
+
+This project is licensed under the MIT License. For more details, see the LICENSE file.

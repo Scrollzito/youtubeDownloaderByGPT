@@ -5,6 +5,7 @@ from tkinter import *
 from tkinter import ttk, filedialog
 from pytube import YouTube
 import customtkinter as ctk
+from tkinter import messagebox
 
 def format_filesize(size):
     if size < 1024:
@@ -55,7 +56,9 @@ def load_options_threaded():
     else:
         available_streams = available_streams.filter(file_extension='mp4')
 
-    options = [f"{stream.resolution} - {stream.mime_type} - {size_readable(stream.filesize)}" for stream in available_streams]
+    available_streams = sorted(available_streams, key=lambda x: x.filesize if x.filesize else 0, reverse=True)
+
+    options = [f"{stream.resolution} - {stream.mime_type} - {stream.codecs} - {format_filesize(stream.filesize)}" for stream in available_streams]
     options_combobox["values"] = options
     options_combobox.current(0)
 
@@ -63,8 +66,13 @@ def load_options_threaded():
     load_button.configure(state=NORMAL)
     options_combobox.configure(state="readonly")
 
+
+
 def load_options():
-    threading.Thread(target=load_options_threaded).start()
+    if not url_entry.get():
+        messagebox.showerror("Error", "Please enter a valid YouTube video URL.")
+    else:
+        threading.Thread(target=load_options_threaded).start()
 
 
 def on_option_selected(event):
