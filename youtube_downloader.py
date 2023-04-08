@@ -1,18 +1,42 @@
 import os
 import threading
+import time
 from tkinter import *
 from tkinter import ttk, filedialog
 from pytube import YouTube
 import customtkinter as ctk
 
-print(os.path.dirname(ctk.__file__))
+def format_filesize(size):
+    if size < 1024:
+        return f"{size} B"
+    elif size < 1048576:
+        return f"{size / 1024:.2f} KB"
+    elif size < 1073741824:
+        return f"{size / 1048576:.2f} MB"
+    else:
+        return f"{size / 1073741824:.2f} GB"
 
 def progress_tracker(stream, chunk, bytes_remaining):
+    global start_time
     total_size = stream.filesize
     bytes_downloaded = total_size - bytes_remaining
+    elapsed_time = time.time() - start_time
+    download_speed = bytes_downloaded / elapsed_time
+
+    if download_speed < 1048576:
+        speed_str = f"{download_speed / 1024:.2f} KB/s"
+    else:
+        speed_str = f"{download_speed / 1048576:.2f} MB/s"
+
     percentage = (bytes_downloaded / total_size) * 100
-    progress_var.set(f"Downloading: {percentage:.2f}% complete")
+    progress_var.set(f"Downloading: {bytes_downloaded / 1048576:.2f}MB / {total_size / 1048576:.2f}MB ({percentage:.2f}% complete) - Speed: {speed_str}")
     window.update_idletasks()
+
+def size_readable(size):
+    if size < 1048576:
+        return f"{size / 1024:.2f} KB"
+    else:
+        return f"{size / 1048576:.2f} MB"
 
 def load_options_threaded():
     global available_streams
@@ -29,19 +53,9 @@ def load_options_threaded():
     if audio_only_var.get():
         available_streams = available_streams.filter(only_audio=True)
     else:
-        progressive_streams = list(available_streams.filter(progressive=True, file_extension='mp4').order_by('resolution').desc())
-        # Add adaptive streams for higher resolutions (2K and 4K)
-        adaptive_streams = list(yt.streams.filter(adaptive=True, file_extension='mp4').order_by('resolution').desc())
-        available_streams = progressive_streams + adaptive_streams
+        available_streams = available_streams.filter(file_extension='mp4')
 
-    options = []
-    for stream in available_streams:
-        if stream.resolution is not None:  # Check if the stream has a resolution (i.e., not an audio-only stream)
-            option = f"{stream.resolution} - {stream.mime_type} - {stream.fps}fps - {stream.abr}"
-        else:
-            option = f"{stream.abr} - {stream.mime_type}"
-        options.append(option)
-
+    options = [f"{stream.resolution} - {stream.mime_type} - {size_readable(stream.filesize)}" for stream in available_streams]
     options_combobox["values"] = options
     options_combobox.current(0)
 
@@ -64,13 +78,18 @@ def browse_folder():
     folder_entry.delete(0, END)
     folder_entry.insert(0, folder_path)
 
+def download_video_threaded():
+    threading.Thread(target=download_video).start()
+
 def download_video():
+    global start_time
     destination_folder = folder_entry.get()
     stream = available_streams[options_combobox.current()]
 
     yt = YouTube(url_entry.get(), on_progress_callback=progress_tracker)
     stream = yt.streams.get_by_itag(stream.itag)
 
+    start_time = time.time()
     stream.download(output_path=destination_folder)
     progress_var.set("Download complete!")
     window.update_idletasks()
@@ -111,7 +130,7 @@ folder_button.grid(row=7, column=1, padx=(0, 10), pady=5)
 
 window.columnconfigure(0, weight=1)
 
-download_button = ctk.CTkButton(window, text="Download", command=download_video, state=DISABLED)
+download_button = ctk.CTkButton(window, text="Download", command=download_video_threaded, state=DISABLED)
 download_button.grid(row=8, column=0, padx=(10, 10), pady=(10, 5))
 
 progress_var = StringVar()
